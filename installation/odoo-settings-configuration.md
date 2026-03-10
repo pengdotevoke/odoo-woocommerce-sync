@@ -6,15 +6,18 @@
 ## Settings
 
 ```.sh
-website="website.com"
-website_root_path="/var/www/vhosts/$website/httpdocs"
-odoo_conf="/etc/odoo.conf"
+domain="website.com"
+domain_root_path="/home/$domain"
+subdomain="erp"
+system_user="website"
+database_name="${system_user}_odoo"
 ```
 
-## Start Odoo command line
+## Start Odoo shell
 
 ```.sh
-$website_root_path/odoo/venv/bin/python3 $website_root_path/odoo/odoo-bin shell --config=$odoo_conf
+# Access Odoo shell
+docker exec -it odoo_server_${system_user} odoo shell --no-http -d $database_name
 ```
 
 ## Settings
@@ -23,6 +26,11 @@ $website_root_path/odoo/venv/bin/python3 $website_root_path/odoo/odoo-bin shell 
 settings_username = 'admin'
 settings_account_fiscal_localization_module = 'l10n_de'
 settings_account_fiscal_localization_template = 'Germany SKR04 - Accounting'
+```
+
+```.py
+from odoo.release import version_info
+print(version_info[0])
 ```
 
 ## Install modules
@@ -104,4 +112,11 @@ else:
 
 ```.py
 exit()
+```
+
+```.sh
+# Rebuild Docker image
+cd $domain_root_path/domains/$subdomain.$domain/odoo
+docker compose build
+docker compose up -d
 ```
